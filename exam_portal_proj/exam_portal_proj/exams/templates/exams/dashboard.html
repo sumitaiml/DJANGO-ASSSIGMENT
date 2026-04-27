@@ -1,0 +1,151 @@
+{% extends 'exams/base.html' %}
+{% block title %}Dashboard — Exam Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+  .welcome-banner {
+    background: linear-gradient(135deg, #1a1a6e 0%, #3b3bbd 100%);
+    border-radius: 18px;
+    padding: 36px 36px;
+    color: #fff;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .welcome-banner::after {
+    content: '\F5FC';   /* mortarboard icon unicode */
+    font-family: 'Bootstrap Icons';
+    position: absolute;
+    right: -10px; top: -20px;
+    font-size: 140px;
+    opacity: 0.07;
+  }
+  .stat-card {
+    border: none;
+    border-radius: 14px;
+    padding: 22px 24px;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(59,59,189,0.08);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .stat-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    flex-shrink: 0;
+  }
+  .table-card { border-radius: 18px; overflow: hidden; border: none; }
+  .table thead th {
+    background: #f0f4ff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #555;
+    border-bottom: none;
+  }
+  .badge-year {
+    background: #e8ecff;
+    color: #3b3bbd;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Welcome Banner -->
+<div class="welcome-banner">
+  <p class="mb-1 opacity-75" style="font-size:0.9rem;">Welcome back 👋</p>
+  <h2 class="fw-700 mb-2">{{ user.get_full_name|default:user.username }}</h2>
+  <p class="mb-3 opacity-75">Manage your examination forms from your personal dashboard.</p>
+  <div class="d-flex gap-3 flex-wrap">
+    <a href="{% url 'exam_form' %}" class="btn btn-light fw-600">
+      <i class="bi bi-file-earmark-plus me-2"></i>Fill Exam Form
+    </a>
+    <a href="{% url 'logout' %}" class="btn btn-outline-light fw-600">
+      <i class="bi bi-box-arrow-right me-2"></i>Logout
+    </a>
+  </div>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#eef0ff;">
+        <i class="bi bi-file-earmark-text" style="color:#3b3bbd;"></i>
+      </div>
+      <div>
+        <div class="fw-700 fs-4">{{ user_forms.count }}</div>
+        <div class="text-muted" style="font-size:0.85rem;">Forms Submitted</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#eaffea;">
+        <i class="bi bi-person-badge" style="color:#1e8c3b;"></i>
+      </div>
+      <div>
+        <div class="fw-700 fs-5" style="color:#1e8c3b;">Active</div>
+        <div class="text-muted" style="font-size:0.85rem;">Account Status</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Submission History Table -->
+<div class="portal-card card table-card">
+  <div class="card-header">
+    <h4><i class="bi bi-clock-history me-2"></i>Submission History</h4>
+  </div>
+  <div class="card-body p-0">
+    {% if user_forms %}
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Full Name</th>
+              <th>Course</th>
+              <th>Year</th>
+              <th>Phone</th>
+              <th>Submitted On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for form in user_forms %}
+            <tr>
+              <td class="text-muted">{{ forloop.counter }}</td>
+              <td class="fw-600">{{ form.full_name }}</td>
+              <td>{{ form.course }}</td>
+              <td><span class="badge-year">{{ form.get_year_display }}</span></td>
+              <td>{{ form.phone_number }}</td>
+              <td class="text-muted" style="font-size:0.85rem;">
+                {{ form.submitted_at|date:"d M Y, h:i A" }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-1 mb-3 d-block opacity-30"></i>
+        <p>No exam forms submitted yet.</p>
+        <a href="{% url 'exam_form' %}" class="btn btn-portal btn-sm">
+          <i class="bi bi-plus-circle me-1"></i>Fill Your First Form
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
